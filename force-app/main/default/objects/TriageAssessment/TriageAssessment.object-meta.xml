@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>TriageAssessment</fullName>
+    <label>Triage Assessment</label>
+    <pluralLabel>Triage Assessments</pluralLabel>
+    <nameField>
+        <type>Text</type>
+        <label>Triage Name</label>
+    </nameField>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <sharingModel>ReadWrite</sharingModel>
+    <fields>
+        <!-- ESI Level Field -->
+        <fullName>ESI_Level__c</fullName>
+        <label>ESI Level</label>
+        <type>Picklist</type>
+        <picklist>
+            <picklistValues>
+                <fullName>1</fullName>
+                <label>1 - Immediate</label>
+            </picklistValues>
+            <picklistValues>
+                <fullName>2</fullName>
+                <label>2 - Emergency</label>
+            </picklistValues>
+            <picklistValues>
+                <fullName>3</fullName>
+                <label>3 - Urgent</label>
+            </picklistValues>
+            <picklistValues>
+                <fullName>4</fullName>
+                <label>4 - Less Urgent</label>
+            </picklistValues>
+            <picklistValues>
+                <fullName>5</fullName>
+                <label>5 - Non Urgent</label>
+            </picklistValues>
+        </picklist>
+        
+        <!-- Rationale Field -->
+        <fullName>Rationale__c</fullName>
+        <label>Rationale</label>
+        <type>Text</type>
+        <length>255</length>
+        
+        <!-- Assigned Area Field -->
+        <fullName>Assigned_Area__c</fullName>
+        <label>Assigned Area</label>
+        <type>Text</type>
+        <length>255</length>
+        
+        <!-- Wait Time Field -->
+        <fullName>Wait_Time__c</fullName>
+        <label>Wait Time</label>
+        <type>Number</type>
+        <length>3</length>
+    </fields>
+</CustomObject>
