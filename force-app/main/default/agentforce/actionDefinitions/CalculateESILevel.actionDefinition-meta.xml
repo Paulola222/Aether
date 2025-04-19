@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ActionDefinition xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>CalculateESILevel</fullName>
+    <action>
+        <agent>TriageAgent</agent>
+        <parameters>
+            <name>symptoms</name>
+            <dataType>String</dataType>
+            <description>Patient's symptoms and assessment responses</description>
+            <required>true</required>
+        </parameters>
+        <parameters>
+            <name>vitalSigns</name>
+            <dataType>String</dataType>
+            <description>Patient's vital signs (BP, HR, RR, Temp, O2)</description>
+            <required>true</required>
+        </parameters>
+        <parameters>
+            <name>age</name>
+            <dataType>Number</dataType>
+            <description>Patient's age</description>
+            <required>true</required>
+        </parameters>
+        <parameters>
+            <name>medicalHistory</name>
+            <dataType>String</dataType>
+            <description>Patient's relevant medical history</description>
+            <required>false</required>
+        </parameters>
+        <prompt>Assess the following patient information and determine an appropriate Emergency Severity Index (ESI) level (1-5):
+
+Patient Age: {!age}
+Symptoms: {!symptoms}
+Vital Signs: {!vitalSigns}
+Medical History: {!medicalHistory}
+
+Provide the following in your response:
+1. ESI Level (1-5)
+2. Rationale for this triage level
+3. Suggested treatment area assignment
+4. Any critical alerts or immediate actions recommended</prompt>
+        <type>PROMPT</type>
+    </action>
+    <actionType>AI_AGENT</actionType>
+    <description>Calculates Emergency Severity Index (ESI) level based on patient data</description>
+    <label>Calculate ESI Level</label>
+    <outcomeTypes>
+        <fullName>ESILevel</fullName>
+        <dataType>Number</dataType>
+        <description>ESI Level (1-5)</description>
+        <extractBy>AI_EXTRACTED</extractBy>
+    </outcomeTypes>
+    <outcomeTypes>
+        <fullName>Rationale</fullName>
+        <dataType>String</dataType>
+        <description>Rationale for the assigned ESI level</description>
+        <extractBy>AI_EXTRACTED</extractBy>
+    </outcomeTypes>
+    <outcomeTypes>
+        <fullName>TreatmentArea</fullName>
+        <dataType>String</dataType>
+        <description>Suggested treatment area</description>
+        <extractBy>AI_EXTRACTED</extractBy>
+    </outcomeTypes>
+    <outcomeTypes>
+        <fullName>CriticalAlerts</fullName>
+        <dataType>String</dataType>
+        <description>Any critical alerts or immediate actions needed</description>
+        <extractBy>AI_EXTRACTED</extractBy>
+    </outcomeTypes>
+</ActionDefinition>
