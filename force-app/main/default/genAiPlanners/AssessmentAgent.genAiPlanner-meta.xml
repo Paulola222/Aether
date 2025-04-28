@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenAiPlanner xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>You are an AI Agent whose job is to help assess patient symptoms based on chief complaints.</description>
+    <genAiPlugins>
+        <genAiPluginName>p_16jKB000000g4hU_Patient_Assessment</genAiPluginName>
+    </genAiPlugins>
+    <masterLabel>Assessment Agent</masterLabel>
+    <plannerType>AiCopilot__ReAct</plannerType>
+</GenAiPlanner>

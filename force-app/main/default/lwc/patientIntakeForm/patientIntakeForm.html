@@ -1,0 +1,226 @@
+<template>
+    <lightning-card title="Patient Intake Form" icon-name="standard:patient">
+        <div class="slds-p-around_medium">
+            <lightning-layout multiple-rows>
+                <!-- Basic Patient Information -->
+                <lightning-layout-item size="12" small-device-size="6" padding="around-small">
+                    <lightning-input label="First Name" required onchange={handleFirstNameChange}></lightning-input>
+                </lightning-layout-item>
+                <lightning-layout-item size="12" small-device-size="6" padding="around-small">
+                    <lightning-input label="Last Name" required onchange={handleLastNameChange}></lightning-input>
+                </lightning-layout-item>
+                <lightning-layout-item size="12" small-device-size="6" padding="around-small">
+                    <lightning-input type="number" label="Age" required onchange={handleAgeChange}></lightning-input>
+                </lightning-layout-item>
+                <lightning-layout-item size="12" small-device-size="6" padding="around-small">
+                    <lightning-combobox
+                        label="Gender"
+                        value={gender}
+                        options={genderOptions}
+                        onchange={handleGenderChange}>
+                    </lightning-combobox>
+                </lightning-layout-item>
+                
+                <!-- Chief Complaint -->
+                <lightning-layout-item size="12" padding="around-small">
+                    <lightning-combobox
+                        label="Chief Complaint"
+                        value={complaint}
+                        options={complaintOptions}
+                        onchange={handleComplaintChange}>
+                    </lightning-combobox>
+                </lightning-layout-item>
+                
+                <lightning-layout-item size="12" padding="around-small">
+                    <lightning-textarea label="Additional Complaint Details" onchange={handleComplaintDetailsChange}></lightning-textarea>
+                </lightning-layout-item>
+                
+                <lightning-layout-item size="12" padding="around-small">
+                    <lightning-button 
+                        label="Submit Patient Information" 
+                        variant="brand" 
+                        onclick={handleSubmit}>
+                    </lightning-button>
+                </lightning-layout-item>
+            </lightning-layout>
+        </div>
+    </lightning-card>
+    
+    <!-- Questionnaire Display -->
+    <template if:true={patientId}>
+        <lightning-card title="Symptom Assessment" icon-name="standard:procedure_detail">
+            <div class="slds-p-around_medium">
+                <template if:true={isLoading}>
+                    <lightning-spinner alternative-text="Loading"></lightning-spinner>
+                </template>
+                
+                <template if:true={questionnaire}>
+                    <div class="slds-text-heading_medium slds-p-bottom_medium">
+                        Please answer the following questions:
+                    </div>
+                    <lightning-formatted-rich-text value={questionnaire}></lightning-formatted-rich-text>
+                    
+                    <div class="slds-p-top_medium">
+                        <lightning-textarea label="Record Patient Responses" required onchange={handleSymptomsChange}></lightning-textarea>
+                    </div>
+                    
+                    <div class="slds-p-top_medium">
+                        <lightning-button 
+                            label="Save Symptom Information" 
+                            variant="brand" 
+                            onclick={handleSaveSymptoms}>
+                        </lightning-button>
+                    </div>
+                </template>
+            </div>
+        </lightning-card>
+    </template>
+    
+    <!-- Vital Signs Entry -->
+    <template if:true={symptoms}>
+        <lightning-card title="Vital Signs" icon-name="standard:maintenance_asset">
+            <div class="slds-p-around_medium">
+                <lightning-layout multiple-rows>
+                    <lightning-layout-item size="12" small-device-size="4" padding="around-small">
+                        <lightning-input 
+                            label="Blood Pressure" 
+                            placeholder="120/80" 
+                            onchange={handleBloodPressureChange}>
+                        </lightning-input>
+                    </lightning-layout-item>
+                    <lightning-layout-item size="12" small-device-size="4" padding="around-small">
+                        <lightning-input 
+                            type="number" 
+                            label="Heart Rate (bpm)" 
+                            onchange={handleHeartRateChange}>
+                        </lightning-input>
+                    </lightning-layout-item>
+                    <lightning-layout-item size="12" small-device-size="4" padding="around-small">
+                        <lightning-input 
+                            type="number" 
+                            label="Temperature (°C)" 
+                            step="0.1" 
+                            onchange={handleTemperatureChange}>
+                        </lightning-input>
+                    </lightning-layout-item>
+                    <lightning-layout-item size="12" small-device-size="4" padding="around-small">
+                        <lightning-input 
+                            type="number" 
+                            label="Oxygen Saturation (%)" 
+                            onchange={handleOxygenSaturationChange}>
+                        </lightning-input>
+                    </lightning-layout-item>
+                    <lightning-layout-item size="12" small-device-size="4" padding="around-small">
+                        <lightning-input 
+                            type="number" 
+                            label="Respiratory Rate (breaths/min)" 
+                            onchange={handleRespiratoryRateChange}>
+                        </lightning-input>
+                    </lightning-layout-item>
+                    
+                    <lightning-layout-item size="12" padding="around-small">
+                        <lightning-textarea 
+                            label="Medical History" 
+                            onchange={handleMedicalHistoryChange}>
+                        </lightning-textarea>
+                    </lightning-layout-item>
+                    
+                    <lightning-layout-item size="12" padding="around-small">
+                        <lightning-button 
+                            label="Save Vital Signs" 
+                            variant="brand" 
+                            onclick={handleSaveVitals}>
+                        </lightning-button>
+                    </lightning-layout-item>
+                </lightning-layout>
+            </div>
+        </lightning-card>
+    </template>
+    
+    <!-- Vital Signs Analysis -->
+    <template if:true={vitalsEntered}>
+        <lightning-card title="Vital Signs Analysis" icon-name="standard:report">
+            <div class="slds-p-around_medium">
+                <template if:true={isAnalyzing}>
+                    <lightning-spinner alternative-text="Analyzing"></lightning-spinner>
+                </template>
+                
+                <template if:true={vitalAnalysis}>
+                    <lightning-formatted-rich-text value={vitalAnalysis}></lightning-formatted-rich-text>
+                    
+                    <div class="slds-p-top_medium">
+                        <lightning-button
+                            label="Calculate ESI Level"
+                            variant="brand"
+                            onclick={handleCalculateESI}>
+                        </lightning-button>
+                    </div>
+                </template>
+            </div>
+        </lightning-card>
+    </template>
+    
+    <!-- ESI Result -->
+    <template if:true={esiCalculated}>
+        <lightning-card title="Triage Assessment" icon-name="standard:service_report">
+            <div class="slds-p-around_medium">
+                <template if:true={isCalculating}>
+                    <lightning-spinner alternative-text="Calculating"></lightning-spinner>
+                </template>
+                
+                <template if:true={esiResult}>
+                    <div class="slds-grid slds-wrap">
+                        <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                            <div class="slds-box slds-theme_alert-texture slds-theme_warning">
+                                <div class="slds-text-heading_medium">ESI Level: {esiResult.ESILevel}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="slds-col slds-size_1-of-1 slds-p-top_medium">
+                            <div class="slds-text-heading_small">Rationale:</div>
+                            <div class="slds-p-around_xx-small">
+                                <lightning-formatted-text value={esiResult.Rationale}></lightning-formatted-text>
+                            </div>
+                        </div>
+                        
+                        <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-p-top_medium">
+                            <div class="slds-text-heading_small">Recommended Treatment Area:</div>
+                            <div class="slds-p-around_xx-small">
+                                <lightning-formatted-text value={esiResult.TreatmentArea}></lightning-formatted-text>
+                            </div>
+                        </div>
+                        
+                        <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-p-top_medium">
+                            <div class="slds-text-heading_small">Critical Alerts:</div>
+                            <div class="slds-p-around_xx-small">
+                                <lightning-formatted-text value={esiResult.CriticalAlerts}></lightning-formatted-text>
+                            </div>
+                        </div>
+                        
+                        <div class="slds-col slds-size_1-of-1 slds-p-top_medium">
+                            <lightning-button
+                                label="Save Assessment & Complete Triage"
+                                variant="success"
+                                onclick={handleSaveAssessment}>
+                            </lightning-button>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </lightning-card>
+    </template>
+    
+    <!-- Success Toast -->
+    <template if:true={showSuccessToast}>
+        <div class="slds-notify_container slds-is-relative">
+            <div class="slds-notify slds-notify_toast slds-theme_success" role="alert">
+                <div class="slds-notify__content">
+                    <h2 class="slds-text-heading_small">Triage assessment successfully completed!</h2>
+                </div>
+                <div class="slds-notify__close">
+                    <lightning-button-icon icon-name="utility:close" onclick={closeSuccessToast} variant="bare-inverse" size="small"></lightning-button-icon>
+                </div>
+            </div>
+        </div>
+    </template>
+</template>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenAiPlanner xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>You are an AI Agent whose job is to help analyze and interpret patient vital signs to enhance emergency room triage.</description>
+    <genAiPlugins>
+        <genAiPluginName>p_16jKB000000g4lb_Vital_Signs_Analysis</genAiPluginName>
+    </genAiPlugins>
+    <masterLabel>VitalCheck Agent</masterLabel>
+    <plannerType>AiCopilot__ReAct</plannerType>
+</GenAiPlanner>

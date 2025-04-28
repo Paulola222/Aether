@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>58.0</apiVersion>
+    <description>Flow to handle the patient triage process</description>
+    <interviewLabel>Triage Process {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Triage Process</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>Flow</processType>
+    <screens>
+        <name>PatientIntakeScreen</name>
+        <label>Patient Intake</label>
+        <locationX>176</locationX>
+        <locationY>158</locationY>
+        <allowBack>true</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>true</allowPause>
+        <connector>
+            <targetReference>SymptomAssessmentScreen</targetReference>
+        </connector>
+        <fields>
+            <name>patientName</name>
+            <dataType>String</dataType>
+            <fieldText>Patient Name</fieldText>
+            <fieldType>InputField</fieldType>
+            <isRequired>true</isRequired>
+        </fields>
+        <fields>
+            <name>patientAge</name>
+            <dataType>Number</dataType>
+            <fieldText>Age</fieldText>
+            <fieldType>InputField</fieldType>
+            <isRequired>true</isRequired>
+        </fields>
+        <fields>
+            <name>patientGender</name>
+            <choiceReferences>GenderOptions</choiceReferences>
+            <dataType>String</dataType>
+            <fieldText>Gender</fieldText>
+            <fieldType>DropdownBox</fieldType>
+            <isRequired>true</isRequired>
+        </fields>
+        <fields>
+            <name>chiefComplaint</name>
+            <choiceReferences>ComplaintOptions</choiceReferences>
+            <dataType>String</dataType>
+            <fieldText>Chief Complaint</fieldText>
+            <fieldType>DropdownBox</fieldType>
+            <isRequired>true</isRequired>
+        </fields>
+    </screens>
+    <screens>
+        <name>SymptomAssessmentScreen</name>
+        <label>Symptom Assessment</label>
+        <locationX>176</locationX>
+        <locationY>278</locationY>
+        <allowBack>true</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>true</allowPause>
+        <connector>
+            <targetReference>VitalSignsScreen</targetReference>
+        </connector>
+        <fields>
+            <name>assessmentQuestions</name>
+            <fieldText>Assessment Questions</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <fields>
+            <name>assessmentResponses</name>
+            <dataType>String</dataType>
+            <fieldText>Patient Responses</fieldText>
+            <fieldType>LargeTextArea</fieldType>
+            <isRequired>true</isRequired>
+        </fields>
+    </screens>
+    <screens>
+        <name>VitalSignsScreen</name>
+        <label>Vital Signs</label>
+        <locationX>176</locationX>
+        <locationY>398</locationY>
+        <allowBack>true</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>true</allowPause>
+        <connector>
+            <targetReference>TriageResultsScreen</targetReference>
+        </connector>
+        <fields>
+            <name>bloodPressure</name>
+            <dataType>String</dataType>
+            <fieldText>Blood Pressure (e.g., 120/80)</fieldText>
+            <fieldType>InputField</fieldType>
+            <isRequired>true</isRequired>
+        </fields>
+        <fields>
+            <name>heartRate</name>
+            <dataType>Number</dataType>
+            <fieldText>Heart Rate (bpm)</fieldText>
+            <fieldType>InputField</fieldType>
+            <isRequired>true</isRequired>
+        </fields>
+        <fields>
+            <name>temperature</name>
+            <dataType>Number</dataType>
+            <fieldText>Temperature (°C)</fieldText>
+            <fieldType>InputField</fieldType>
+            <isRequired>true</isRequired>
+            <scale>1</scale>
+        </fields>
+        <fields>
+            <name>oxygenSaturation</name>
+            <dataType>Number</dataType>
+            <fieldText>Oxygen Saturation (%)</fieldText>
+            <fieldType>InputField</fieldType>
+            <isRequired>true</isRequired>
+        </fields>
+        <fields>
+            <name>respiratoryRate</name>
+            <dataType>Number</dataType>
+            <fieldText>Respiratory Rate (breaths/min)</fieldText>
+            <fieldType>InputField</fieldType>
+            <isRequired>false</isRequired>
+        </fields>
+        <fields>
+            <name>vitalAnalysis</name>
+            <fieldText>Vital Signs Analysis</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+    </screens>
+    <screens>
+        <name>TriageResultsScreen</name>
+        <label>Triage Results</label>
+        <locationX>176</locationX>
+        <locationY>518</locationY>
+        <allowBack>true</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>true</allowPause>
+        <fields>
+            <name>triageResults</name>
+            <fieldText>Triage Results</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <fields>
+            <name>esiLevel</name>
+            <dataType>Number</dataType>
+            <fieldText>ESI Level</fieldText>
+            <fieldType>DisplayText</fieldType>
+            <isRequired>false</isRequired>
+        </fields>
+        <fields>
+            <name>rationale</name>
+            <fieldText>Rationale</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <fields>
+            <name>treatmentArea</name>
+            <fieldText>Recommended Treatment Area</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <fields>
+            <name>criticalAlerts</name>
+            <fieldText>Critical Alerts</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+    </screens>
+    <start>
+        <locationX>50</locationX>
+        <locationY>50</locationY>
+        <connector>
+            <targetReference>PatientIntakeScreen</targetReference>
+        </connector>
+    </start>
+    <status>Active</status>
+    <variables>
+        <name>patientIntakeRecord</name>
+        <dataType>SObject</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>PatientIntake__c</objectType>
+    </variables>
+    <variables>
+        <name>triageAssessmentRecord</name>
+        <dataType>SObject</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>TriageAssessment__c</objectType>
+    </variables>
+    <choices>
+        <name>ComplaintOptions</name>
+        <choiceText>Chest Pain</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Chest Pain</stringValue>
+        </value>
+    </choices>
+    <choices>
+        <name>ComplaintOptions</name>
+        <choiceText>Difficulty Breathing</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Difficulty Breathing</stringValue>
+        </value>
+    </choices>
+    <choices>
+        <name>ComplaintOptions</name>
+        <choiceText>Abdominal Pain</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Abdominal Pain</stringValue>
+        </value>
+    </choices>
+    <choices>
+        <name>GenderOptions</name>
+        <choiceText>Male</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Male</stringValue>
+        </value>
+    </choices>
+    <choices>
+        <name>GenderOptions</name>
+        <choiceText>Female</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Female</stringValue>
+        </value>
+    </choices>
+    <choices>
+        <name>GenderOptions</name>
+        <choiceText>Other</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Other</stringValue>
+        </value>
+    </choices>
+</Flow>

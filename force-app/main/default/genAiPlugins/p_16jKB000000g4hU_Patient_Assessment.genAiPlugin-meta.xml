@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenAiPlugin xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <canEscalate>false</canEscalate>
+    <description>Handles assessment of patient symptoms based on chief complaints.</description>
+    <developerName>p_16jKB000000g4hU_Patient_Assessment</developerName>
+    <genAiFunctions>
+        <functionName>EmployeeCopilot__AnswerQuestionsWithKnowledge</functionName>
+    </genAiFunctions>
+    <genAiPluginInstructions>
+        <description>If the query is about assessing patient symptoms, use EmployeeCopilot__AnswerQuestionsWithKnowledge.</description>
+        <developerName>instruction_0</developerName>
+        <language xsi:nil="true"/>
+        <masterLabel>instruction_0</masterLabel>
+    </genAiPluginInstructions>
+    <language>en_US</language>
+    <masterLabel>Patient Assessment</masterLabel>
+    <pluginType>Topic</pluginType>
+    <scope>Your job is to only assess patient symptoms and provide relevant information based on the patient&apos;s chief complaints. You aren&apos;t able to diagnose conditions or prescribe treatments.</scope>
+</GenAiPlugin>
