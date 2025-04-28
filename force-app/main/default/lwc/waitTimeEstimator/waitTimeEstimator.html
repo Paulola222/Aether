@@ -1,0 +1,16 @@
+<template>
+    <lightning-card title="Estimated Wait Time">
+        <div class="slds-p-around_medium">
+            <lightning-combobox
+                label="Select Priority"
+                options={priorityOptions}
+                value={priority}
+                onchange={handlePriorityChange}>
+            </lightning-combobox>
+
+            <template if:true={waitTime}>
+                <p>Estimated Wait Time: {waitTime} minutes</p>
+            </template>
+        </div>
+    </lightning-card>
+</template>
