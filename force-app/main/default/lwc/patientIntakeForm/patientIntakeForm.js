@@ -1,4 +1,4 @@
-import { LightningElement, track, api, wire } from 'lwc';
+import { LightningElement, track } from 'lwc';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 
 import createPatientIntake from '@salesforce/apex/PatientIntakeController.createPatientIntake';
@@ -31,7 +31,7 @@ export default class PatientIntakeForm extends LightningElement {
         { label: 'Other', value: 'Other' }
     ];
 
-    @track patientId;
+    @track intakeId; // Changed from patientId to intakeId
     @track questionnaire;
     @track symptoms;
     @track isLoading = false;
@@ -80,7 +80,7 @@ export default class PatientIntakeForm extends LightningElement {
                 chiefComplaint: this.complaint,
                 complaintDetails: this.complaintDetails
             });
-            this.patientId = result;
+            this.intakeId = result; // Save it as intakeId
             this.isLoading = true;
             this.getQuestionnaire();
         } catch (error) {
@@ -90,7 +90,7 @@ export default class PatientIntakeForm extends LightningElement {
 
     async getQuestionnaire() {
         try {
-            const questions = await getSymptomQuestionnaire({ patientId: this.patientId });
+            const questions = await getSymptomQuestionnaire({ intakeId: this.intakeId });
             this.questionnaire = questions;
             this.isLoading = false;
         } catch (error) {
@@ -104,7 +104,7 @@ export default class PatientIntakeForm extends LightningElement {
 
     async handleSaveSymptoms() {
         try {
-            await updateSymptoms({ patientId: this.patientId, symptoms: this.symptoms });
+            await updateSymptoms({ intakeId: this.intakeId, symptoms: this.symptoms });
         } catch (error) {
             this.showToast('Error saving symptoms', error.body.message, 'error');
         }
@@ -131,11 +131,11 @@ export default class PatientIntakeForm extends LightningElement {
 
     async handleSaveVitals() {
         try {
-            await updateVitalSigns({ patientId: this.patientId, vitalSigns: this.vitalSigns });
-            await updateMedicalHistory({ patientId: this.patientId, medicalHistory: this.medicalHistory });
+            await updateVitalSigns({ intakeId: this.intakeId, vitalSigns: this.vitalSigns });
+            await updateMedicalHistory({ intakeId: this.intakeId, medicalHistory: this.medicalHistory });
             this.vitalsEntered = true;
             this.isAnalyzing = true;
-            const result = await analyzeVitalSigns({ patientId: this.patientId });
+            const result = await analyzeVitalSigns({ intakeId: this.intakeId });
             this.vitalAnalysis = result;
             this.isAnalyzing = false;
         } catch (error) {
@@ -146,7 +146,7 @@ export default class PatientIntakeForm extends LightningElement {
     async handleCalculateESI() {
         try {
             this.isCalculating = true;
-            const result = await calculateESILevel({ patientId: this.patientId });
+            const result = await calculateESILevel({ intakeId: this.intakeId });
             this.esiResult = result;
             this.esiCalculated = true;
             this.isCalculating = false;
@@ -157,7 +157,7 @@ export default class PatientIntakeForm extends LightningElement {
 
     async handleSaveAssessment() {
         try {
-            await createTriageAssessment({ patientId: this.patientId, esiAssessment: this.esiResult });
+            await createTriageAssessment({ intakeId: this.intakeId, esiAssessment: this.esiResult });
             this.showSuccessToast = true;
         } catch (error) {
             this.showToast('Error saving assessment', error.body.message, 'error');

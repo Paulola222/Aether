@@ -3,13 +3,14 @@ public with sharing class PatientIntakeController {
     // Create new patient intake record
     @AuraEnabled
     public static String createPatientIntake(String firstName, String lastName, Integer age, 
-                                            String gender, String complaints) {
+                                            String gender, String chiefComplaint, String complaintDetails) {
         try {
             PatientIntake__c intake = new PatientIntake__c(
                 Name = firstName + ' ' + lastName,
                 Age__c = age,
                 Gender__c = gender,
-                Complaints__c = complaints,
+                Complaints__c = chiefComplaint,
+                ComplaintDetails__c = complaintDetails,
                 IntakeTimestamp__c = Datetime.now()
             );
             
@@ -76,4 +77,18 @@ public with sharing class PatientIntakeController {
             throw new AuraHandledException('Error retrieving patient intake: ' + e.getMessage());
         }
     }
+
+    // Get all patient intake records
+    @AuraEnabled(cacheable=true)
+    public static List<PatientIntake__c> getAllPatientIntakes() {
+        try {
+            return [SELECT Id, Name, Age__c, Gender__c, Complaints__c, Symptoms__c,
+                    BloodPressure__c, HeartRate__c, Temperature__c, OxygenSaturation__c,
+                    RespiratoryRate__c, MedicalHistory__c, IntakeTimestamp__c
+                    FROM PatientIntake__c];
+        } catch (Exception e) {
+            throw new AuraHandledException('Error retrieving patient intakes: ' + e.getMessage());
+        }
+    }
+
 }

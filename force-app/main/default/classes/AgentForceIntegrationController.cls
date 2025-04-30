@@ -1,20 +1,33 @@
 public with sharing class AgentForceIntegrationController {
-    
-    // Call Assessment Agent for symptom questionnaire
-    @AuraEnabled
+
+    @AuraEnabled(cacheable=true)
     public static String getSymptomQuestionnaire(String intakeId) {
         try {
-            PatientIntake__c intake = [SELECT Id, Age__c, Gender__c, Complaints__c
-                                       FROM PatientIntake__c WHERE Id = :intakeId LIMIT 1];
+            System.debug('Looking for PatientIntake__c with Id: ' + intakeId);
 
+            List<PatientIntake__c> intakeList = [
+                SELECT Id, Age__c, Gender__c, Complaints__c
+                FROM PatientIntake__c
+                WHERE Id = :intakeId
+                LIMIT 1
+            ];
+
+            if (intakeList.isEmpty()) {
+                throw new AuraHandledException('Patient intake record not found for ID: ' + intakeId);
+            }
+
+            PatientIntake__c intake = intakeList[0];
+
+            // Adding intakeId to parameters
             Map<String, Object> params = new Map<String, Object>{
+                'patientIntake.Id' => intake.Id,  // Adding record ID to params
                 'patientIntake.Age__c' => intake.Age__c,
                 'patientIntake.Gender__c' => intake.Gender__c,
                 'patientIntake.Complaints__c' => intake.Complaints__c
             };
 
             AgentForce.ActionRequest request = new AgentForce.ActionRequest();
-            request.actionName = 'Get_Symptom_Questionnaire';
+            request.actionName = 'GetQuestionnaire';
             request.parameters = params;
 
             AgentForce.ActionResponse response = AgentForce.invokeAction(request);
@@ -32,7 +45,9 @@ public with sharing class AgentForceIntegrationController {
                                        Temperature__c, OxygenSaturation__c, RespiratoryRate__c
                                        FROM PatientIntake__c WHERE Id = :intakeId LIMIT 1];
 
+            // Adding intakeId to parameters
             Map<String, Object> params = new Map<String, Object>{
+                'patientIntake.Id' => intake.Id,  // Adding record ID to params
                 'patientIntake.Age__c' => intake.Age__c,
                 'patientIntake.Gender__c' => intake.Gender__c,
                 'patientIntake.BloodPressure__c' => intake.BloodPressure__c,
@@ -43,7 +58,7 @@ public with sharing class AgentForceIntegrationController {
             };
 
             AgentForce.ActionRequest request = new AgentForce.ActionRequest();
-            request.actionName = 'Analyze_Vital_Signs';
+            request.actionName = 'AnalyzeVitalSigns';
             request.parameters = params;
 
             AgentForce.ActionResponse response = AgentForce.invokeAction(request);
@@ -62,7 +77,9 @@ public with sharing class AgentForceIntegrationController {
                                        RespiratoryRate__c, MedicalHistory__c
                                        FROM PatientIntake__c WHERE Id = :intakeId LIMIT 1];
 
+            // Adding intakeId to parameters
             Map<String, Object> params = new Map<String, Object>{
+                'patientIntake.Id' => intake.Id,  // Adding record ID to params
                 'patientIntake.Age__c' => intake.Age__c,
                 'patientIntake.Gender__c' => intake.Gender__c,
                 'patientIntake.Complaints__c' => intake.Complaints__c,
@@ -76,12 +93,12 @@ public with sharing class AgentForceIntegrationController {
             };
 
             AgentForce.ActionRequest request = new AgentForce.ActionRequest();
-            request.actionName = 'Calculate_ESI_Level';
+            request.actionName = 'CalculateESILevel';
             request.parameters = params;
 
             AgentForce.ActionResponse response = AgentForce.invokeAction(request);
 
-            Map<String, String> result = new Map<String, String>{
+            Map<String, String> result = new Map<String, String> {
                 'ESILevel' => (String) response.output.get('ESILevel'),
                 'Rationale' => (String) response.output.get('Rationale'),
                 'TreatmentArea' => (String) response.output.get('TreatmentArea'),

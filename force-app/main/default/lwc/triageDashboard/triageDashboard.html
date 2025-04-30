@@ -3,20 +3,34 @@
         <div class="slds-p-around_medium">
             <lightning-button label="Refresh Queue" onclick={refreshQueue} class="slds-m-bottom_small"></lightning-button>
 
-            <template if:true={patients}>
-                <lightning-datatable
-                    key-field="Id"
-                    data={patients}
-                    columns={columns}
-                    onrowaction={handleRowAction}
-                    row-class={rowClass}>
-                </lightning-datatable>
-            </template>
+            <!-- Start Grid Layout -->
+            <div class="slds-grid slds-gutters">
+                
+                <!-- Left side: Patients Queue -->
+                <div class="slds-col slds-size_2-of-3">
+                    <template if:true={patients}>
+                        <lightning-datatable
+                            key-field="Id"
+                            data={patients}
+                            columns={columns}
+                            onrowaction={handleRowAction}
+                            row-class={rowClass}>
+                        </lightning-datatable>
+                    </template>
 
-            <!-- Use the custom errorPanel -->
-            <template if:true={error}>
-                <c-error-panel errors={error}></c-error-panel>
-            </template>
+                    <template if:true={error}>
+                        <c-error-panel errors={error}></c-error-panel>
+                    </template>
+                </div>
+
+                <!-- Right side: Wait Time Estimator -->
+                <div class="slds-col slds-size_1-of-3">
+                    <c-wait-time-estimator></c-wait-time-estimator>
+                </div>
+
+            </div>
+            <!-- End Grid Layout -->
+
         </div>
     </lightning-card>
 </template>

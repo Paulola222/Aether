@@ -1,0 +1,11 @@
+<template>
+    <lightning-card title="Patient Intake Records" icon-name="standard:patient">
+        <div class="slds-p-around_medium">
+            <lightning-datatable 
+                data={patientRecords}
+                columns={columns}
+                key-field="Id">
+            </lightning-datatable>
+        </div>
+    </lightning-card>
+</template>
