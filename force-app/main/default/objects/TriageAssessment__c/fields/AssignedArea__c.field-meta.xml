@@ -28,6 +28,11 @@
                 <default>false</default>
                 <label>Observation</label>
             </value>
+            <value>
+                <fullName>Intermediate Care</fullName>
+                <default>false</default>
+                <label>Intermediate Care</label>
+            </value>
         </valueSetDefinition>
     </valueSet>
 </CustomField>

@@ -1,11 +1,12 @@
-.high-priority {
-    background-color: #FFCDD2; /* light red */
+.queue-table {
+    padding: 1rem;
 }
 
-.medium-priority {
-    background-color: #FFF9C4; /* light yellow */
+.dashboard-container {
+    padding: 1rem;
 }
 
-.low-priority {
-    background-color: #C8E6C9; /* light green */
+.slds-modal__content p,
+.slds-modal__content ul {
+    margin-bottom: 0.75rem;
 }

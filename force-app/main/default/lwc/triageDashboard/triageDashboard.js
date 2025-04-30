@@ -1,87 +1,74 @@
 import { LightningElement, wire, track } from 'lwc';
-import getWaitingPatients from '@salesforce/apex/ER_TriageService.getWaitingPatients';
-import assignResource from '@salesforce/apex/ER_ResourceAssignmentService.assignResource';
-import { ShowToastEvent } from 'lightning/platformShowToastEvent';
-import { refreshApex } from '@salesforce/apex';
+import getAllTriageAssessments from '@salesforce/apex/TriageAssessmentController.getAllTriageAssessments';
 
-const columns = [
-    { label: 'Patient Name', fieldName: 'ContactName' },
-    { label: 'Priority', fieldName: 'Priority' },
-    { label: 'Arrival Time', fieldName: 'CreatedDate', type: 'date' },
+const COLUMNS = [
+    { label: 'Patient Name', fieldName: 'patientName', type: 'text' },
+    { label: 'Age', fieldName: 'patientAge', type: 'number' },
+    { label: 'Gender', fieldName: 'patientGender', type: 'text' },
+    { label: 'Chief Complaint', fieldName: 'chiefComplaint', type: 'text' },
+    { 
+        label: 'ESI Level', 
+        fieldName: 'esiLevel', 
+        type: 'text',
+        cellAttributes: {
+            class: { fieldName: 'esiLevelClass' }
+        }
+    },
+    { label: 'Time in Queue (min)', fieldName: 'timeInQueue', type: 'number' },
+    { label: 'Assigned Area', fieldName: 'assignedArea', type: 'text' },
+    { label: 'Critical Alert', fieldName: 'alertDisplay', type: 'text' },
     {
         type: 'button',
         typeAttributes: {
-            label: 'Assign Resource',
-            name: 'assign',
-            title: 'Assign',
-            variant: 'brand',
-            iconPosition: 'left'
+            label: 'View Assessment',
+            name: 'view_assessment',
+            variant: 'brand'
         }
     }
 ];
 
 export default class TriageDashboard extends LightningElement {
-    @track patients;
+    @track triageList = [];
+    @track selectedAssessment;
     @track error;
-    columns = columns;
-    wiredResult;
 
-    @wire(getWaitingPatients)
-    wiredPatients(value) {
-        this.wiredResult = value;
-        const { data, error } = value;
+    columns = COLUMNS;
+
+    @wire(getAllTriageAssessments)
+    wiredAssessments({ data, error }) {
         if (data) {
-            this.patients = data;
+            this.triageList = data.map(record => ({
+                ...record,
+                esiLevelClass: this.getEsiLevelClass(record.esiLevel),
+                alertDisplay: record.criticalAlert ? '⚠️ ' + (record.alertDetails || 'Critical') : 'None'
+            }));
             this.error = undefined;
         } else if (error) {
             this.error = error;
-            this.patients = undefined;
+            this.triageList = undefined;
         }
     }
 
-    refreshQueue() {
-        refreshApex(this.wiredResult);
+    getEsiLevelClass(esiLevel) {
+        switch(esiLevel) {
+            case '1': return 'slds-text-color_error'; // Red
+            case '2': return 'slds-text-color_warning'; // Orange
+            case '3': return 'slds-text-color_weak'; // Yellowish
+            case '4': return 'slds-text-color_success'; // Green
+            case '5': return 'slds-text-color_success'; // Green
+            default: return '';
+        }
     }
 
-    async handleRowAction(event) {
+    handleRowAction(event) {
         const actionName = event.detail.action.name;
         const row = event.detail.row;
-
-        if (actionName === 'assign') {
-            try {
-                await assignResource({ patientCaseId: row.Id });
-                this.showToast('Success', 'Resource Assigned Successfully!', 'success');
-                this.refreshQueue();
-            } catch (error) {
-                this.showToast('Error', error.body.message, 'error');
-            }
+        if (actionName === 'view_assessment') {
+            this.selectedAssessment = row;
         }
     }
 
-    showToast(title, message, variant) {
-        this.dispatchEvent(new ShowToastEvent({
-            title: title,
-            message: message,
-            variant: variant,
-        }));
-    }
-
-    // Coloring rows based on Priority
-    rowClass(data) {
-        if (data.Priority === 'High') {
-            return 'high-priority';
-        } else if (data.Priority === 'Medium') {
-            return 'medium-priority';
-        } else if (data.Priority === 'Low') {
-            return 'low-priority';
-        }
-        return '';
-    }
-
-    connectedCallback() {
-        // Auto-refresh every 1 minute
-        setInterval(() => {
-            this.refreshQueue();
-        }, 60000); // 60000 ms = 60 seconds
+    closeModal() {
+        this.selectedAssessment = null;
     }
 }

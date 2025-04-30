@@ -20,7 +20,22 @@ public with sharing class PatientIntakeController {
             throw new AuraHandledException('Error creating patient intake: ' + e.getMessage());
         }
     }
-    
+
+    // Update patient symptoms
+    @AuraEnabled
+    public static PatientIntake__c updateSymptoms(String intakeId, String symptoms) {
+        try {
+            PatientIntake__c intake = [SELECT Id, Symptoms__c FROM PatientIntake__c WHERE Id = :intakeId LIMIT 1];
+            intake.Symptoms__c = symptoms;
+            update intake;
+            
+            // Return the updated intake record
+            return intake;
+        } catch (Exception e) {
+            throw new AuraHandledException('Error updating symptoms: ' + e.getMessage());
+        }
+    }
+
     // Update patient intake with vital signs
     @AuraEnabled
     public static void updateVitalSigns(String intakeId, String bloodPressure, Integer heartRate, 
@@ -39,18 +54,6 @@ public with sharing class PatientIntakeController {
         }
     }
     
-    // Update patient symptoms
-    @AuraEnabled
-    public static void updateSymptoms(String intakeId, String symptoms) {
-        try {
-            PatientIntake__c intake = [SELECT Id FROM PatientIntake__c WHERE Id = :intakeId LIMIT 1];
-            intake.Symptoms__c = symptoms;
-            
-            update intake;
-        } catch (Exception e) {
-            throw new AuraHandledException('Error updating symptoms: ' + e.getMessage());
-        }
-    }
     
     // Update medical history
     @AuraEnabled

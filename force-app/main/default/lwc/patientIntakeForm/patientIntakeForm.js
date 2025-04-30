@@ -1,5 +1,6 @@
-import { LightningElement, track } from 'lwc';
+import { LightningElement, api, track } from 'lwc';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+import { NavigationMixin } from 'lightning/navigation';
 
 import createPatientIntake from '@salesforce/apex/PatientIntakeController.createPatientIntake';
 import updateSymptoms from '@salesforce/apex/PatientIntakeController.updateSymptoms';
@@ -90,13 +91,48 @@ export default class PatientIntakeForm extends LightningElement {
 
     async getQuestionnaire() {
         try {
-            const questions = await getSymptomQuestionnaire({ intakeId: this.intakeId });
-            this.questionnaire = questions;
+            this.isLoading = true;
+            const questionnaireResponse = await getSymptomQuestionnaire({ intakeId: this.intakeId });
+
+            console.log('Questionnaire response:', questionnaireResponse);
+
+            if (typeof questionnaireResponse === 'string') {
+                try {
+                    const parsedResponse = JSON.parse(questionnaireResponse);
+                    if (parsedResponse.value) {
+                        this.questionnaire = this.formatQuestionnaire(parsedResponse.value);
+                    } else {
+                        this.questionnaire = this.formatQuestionnaire(questionnaireResponse);
+                    }
+                } catch (parseError) {
+                    this.questionnaire = this.formatQuestionnaire(questionnaireResponse);
+                }
+            } else {
+                this.questionnaire = this.formatQuestionnaire(questionnaireResponse);
+            }
+
+            console.log('Final formatted questionnaire:', this.questionnaire);
             this.isLoading = false;
         } catch (error) {
-            this.showToast('Error loading questionnaire', error.body.message, 'error');
+            this.isLoading = false;
+            console.error('Error fetching questionnaire:', error);
+            this.showToast('Error loading questionnaire', error.body ? error.body.message : error.message, 'error');
         }
     }
+
+    // Helper function to format the questionnaire nicely
+    formatQuestionnaire(rawText) {
+        let formattedText = rawText;
+
+        // Add <br><br> after each question number
+        formattedText = formattedText.replace(/(\d+\.)/g, '<br><br><strong>$1</strong>');
+
+        // Add <br> after each question to separate them
+        formattedText = formattedText.replace(/\? /g, '?<br>');
+
+        return formattedText;
+    }
+
 
     handleSymptomsChange(event) {
         this.symptoms = event.target.value;
@@ -104,7 +140,12 @@ export default class PatientIntakeForm extends LightningElement {
 
     async handleSaveSymptoms() {
         try {
-            await updateSymptoms({ intakeId: this.intakeId, symptoms: this.symptoms });
+            const savedIntake = await updateSymptoms({ intakeId: this.intakeId, symptoms: this.symptoms });
+            console.log('Symptoms saved successfully:', savedIntake);
+
+            // Show success toast
+            this.showToast('Success', 'Symptoms have been saved successfully!', 'success');
+
         } catch (error) {
             this.showToast('Error saving symptoms', error.body.message, 'error');
         }
@@ -131,36 +172,143 @@ export default class PatientIntakeForm extends LightningElement {
 
     async handleSaveVitals() {
         try {
-            await updateVitalSigns({ intakeId: this.intakeId, vitalSigns: this.vitalSigns });
-            await updateMedicalHistory({ intakeId: this.intakeId, medicalHistory: this.medicalHistory });
+            // Save vital signs
+            const savedVitals = await updateVitalSigns({
+                intakeId: this.intakeId,
+                bloodPressure: this.vitalSigns.bloodPressure,
+                heartRate: this.vitalSigns.heartRate,
+                temperature: this.vitalSigns.temperature,
+                oxygenSaturation: this.vitalSigns.oxygenSaturation,
+                respiratoryRate: this.vitalSigns.respiratoryRate
+            });
+            console.log('Vital signs saved successfully:', savedVitals);
+
+            // Save medical history
+            const savedMedicalHistory = await updateMedicalHistory({
+                intakeId: this.intakeId,
+                medicalHistory: this.medicalHistory
+            });
+            console.log('Medical history saved successfully:', savedMedicalHistory);
+
+            // Success toast
+            this.showToast('Success', 'Vital signs and medical history saved successfully!', 'success');
+
+            // Proceed to analyze vital signs
             this.vitalsEntered = true;
             this.isAnalyzing = true;
+
             const result = await analyzeVitalSigns({ intakeId: this.intakeId });
-            this.vitalAnalysis = result;
+            console.log('Vital signs analysis result:', result);
+
+            if (result) {
+                // Format the result for rich text display if necessary
+                this.vitalAnalysis = this.formatRichTextContent(result);
+            } else {
+                this.vitalAnalysis = '<p>No analysis available for the provided vital signs.</p>';
+            }
+
             this.isAnalyzing = false;
         } catch (error) {
-            this.showToast('Error saving vitals or analyzing', error.body.message, 'error');
+            this.showToast('Error saving vitals or analyzing', error.body?.message || 'Unknown error occurred', 'error');
+            console.error('Error during save/analyze process:', error);
+            this.isAnalyzing = false;
         }
+    }
+
+    // Helper method to format content for rich text display
+    formatRichTextContent(content) {
+        if (!content) return '';
+
+        // Replace newlines with HTML breaks for proper display
+        let formattedContent = content.replace(/\n/g, '<br>');
+
+        // Wrap in paragraph tag if not already wrapped in HTML
+        if (!formattedContent.trim().startsWith('<')) {
+            formattedContent = '<p>' + formattedContent + '</p>';
+        }
+
+        return formattedContent;
     }
 
     async handleCalculateESI() {
         try {
             this.isCalculating = true;
             const result = await calculateESILevel({ intakeId: this.intakeId });
-            this.esiResult = result;
+
+            // Debug the response
+            console.log('ESI calculation result:', JSON.stringify(result));
+
+            // Make sure we have all the values
+            this.esiResult = {
+                ESILevel: result.ESILevel || '3',
+                Rationale: result.Rationale || 'No rationale provided',
+                TreatmentArea: result.TreatmentArea || 'Urgent Care',
+                CriticalAlerts: result.CriticalAlerts || 'None'
+            };
+
             this.esiCalculated = true;
             this.isCalculating = false;
+
+            // Show success toast
+            this.showToast('ESI Calculated', 'Emergency Severity Index calculation completed', 'success');
         } catch (error) {
-            this.showToast('Error calculating ESI', error.body.message, 'error');
+            this.isCalculating = false;
+            console.error('Error calculating ESI:', error);
+            this.showToast('Error calculating ESI', error.body?.message || 'Unknown error occurred', 'error');
         }
+    }
+
+    // For conditional styling based on ESI level
+    get isESILevelHigh() {
+        return this.esiResult && (this.esiResult.ESILevel === '1' || this.esiResult.ESILevel === '2');
+    }
+
+    get isESILevel3() {
+        return this.esiResult && this.esiResult.ESILevel === '3';
+    }
+
+    get isESILevelLow() {
+        return this.esiResult && (this.esiResult.ESILevel === '4' || this.esiResult.ESILevel === '5');
     }
 
     async handleSaveAssessment() {
         try {
-            await createTriageAssessment({ intakeId: this.intakeId, esiAssessment: this.esiResult });
-            this.showSuccessToast = true;
+            this.isSaving = true;
+            
+            // Format the ESI assessment data
+            const esiAssessment = {
+                ESILevel: this.esiResult.ESILevel,
+                Rationale: this.esiResult.Rationale,
+                TreatmentArea: this.esiResult.TreatmentArea,
+                CriticalAlerts: this.esiResult.CriticalAlerts
+            };
+            
+            console.log('Saving assessment with data:', JSON.stringify(esiAssessment));
+            
+            // Call the Apex method to create the triage assessment
+            const result = await createTriageAssessment({ 
+                intakeId: this.intakeId, 
+                esiAssessment: esiAssessment 
+            });
+            
+            this.isSaving = false;
+            this.assessmentId = result;
+            
+            // Show success message
+            this.showToast('Assessment Saved', 'The triage assessment has been successfully saved.', 'success');
+            
+            // Fire completion event
+            this.dispatchEvent(new CustomEvent('assessmentcomplete', {
+                detail: {
+                    assessmentId: result,
+                    esiLevel: this.esiResult.ESILevel
+                }
+            }));
+            
         } catch (error) {
-            this.showToast('Error saving assessment', error.body.message, 'error');
+            this.isSaving = false;
+            console.error('Error saving assessment:', error);
+            this.showToast('Error saving assessment', error.body?.message || 'An unknown error occurred', 'error');
         }
     }
 
