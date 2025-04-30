@@ -57,9 +57,9 @@ public class AgentForce {
     
             // Create a better prompt
             String userMessage = 'Please retrieve the patient intake record with ID: ' + caseId +
-                                  ' and generate a complete symptom assessment questionnaire based on the patient\'s chief complaint, age, and gender. ' +
-                                  'Include all relevant clinical questions organized by category to help evaluate the severity of their condition and identify any potential red flags.';
-    
+                     ' and generate a symptom assessment questionnaire based on the patient\'s chief complaint, age, and gender. ' +
+                     'Limit the output to a maximum of 8 clinically relevant questions that help evaluate the severity of the condition and identify potential red flags.';
+
             Invocable.Action action = Invocable.Action.createCustomAction('generateAiAgentResponse', ASSESSMENT_AGENT_NAME);
             action.setInvocationParameter('userMessage', userMessage);
             action.setInvocationParameter('CaseId', caseId);

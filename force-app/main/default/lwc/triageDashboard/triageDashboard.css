@@ -6,6 +6,10 @@
     padding: 1rem;
 }
 
+.dashboard-controls {
+    padding: 0 1rem 1rem 1rem;
+}
+
 .slds-modal__content p,
 .slds-modal__content ul {
     margin-bottom: 0.75rem;

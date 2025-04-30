@@ -1,18 +1,40 @@
-# Salesforce DX Project: Next Steps
+# 🩺 Aether: ER Triage Assessment System
 
-Now that you’ve created a Salesforce DX project, what’s next? Here are some documentation resources to get you started.
+**Aether** is a smart Emergency Room triage solution built on the Salesforce platform. It helps clinicians assess patients quickly and accurately using the Emergency Severity Index (ESI), while automating treatment area assignments, red flag detection, and clinical decision support.
 
-## How Do You Plan to Deploy Your Changes?
+---
 
-Do you want to deploy a set of changes, or create a self-contained application? Choose a [development model](https://developer.salesforce.com/tools/vscode/en/user-guide/development-models).
+## 🚀 Key Features
 
-## Configure Your Salesforce DX Project
+- ✅ ESI Level calculation with clinical rationale
+- 📝 Dynamic symptom-based assessment (max 8 questions)
+- 🧭 Automatic assignment to treatment areas (e.g., Intermediate Care, Main ER)
+- 📋 Critical alerts to monitor high-risk symptoms
+- 🔄 Seamless integration with Salesforce Case records
+- 🔒 Restricted picklist validation for `AssignedArea__c`
+- 🧪 Prompt-driven triage question generation
 
-The `sfdx-project.json` file contains useful configuration information for your project. See [Salesforce DX Project Configuration](https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/sfdx_dev_ws_config.htm) in the _Salesforce DX Developer Guide_ for details about this file.
+---
 
-## Read All About It
+## 🧰 Tech Stack
 
-- [Salesforce Extensions Documentation](https://developer.salesforce.com/tools/vscode/)
-- [Salesforce CLI Setup Guide](https://developer.salesforce.com/docs/atlas.en-us.sfdx_setup.meta/sfdx_setup/sfdx_setup_intro.htm)
-- [Salesforce DX Developer Guide](https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/sfdx_dev_intro.htm)
-- [Salesforce CLI Command Reference](https://developer.salesforce.com/docs/atlas.en-us.sfdx_cli_reference.meta/sfdx_cli_reference/cli_reference.htm)
+- **Salesforce Platform** — built natively with metadata customization
+- **Lightning Web Components (LWC)** — interactive UI for triage flow
+- **Apex (async)** — backend logic for ESI scoring and data persistence
+- **Custom Metadata & Picklists** — flexible area assignments
+- **Salesforce `sf` CLI** — for deployment and local development
+
+---
+
+## 📦 Project Structure
+
+---
+
+## 🧑‍💻 Setup Instructions (using `sf` CLI)
+
+### Prerequisites
+
+- Salesforce CLI (`sf`)
+- Dev Hub & scratch org access
+- Git
+- Node.js (for local LWC dev)

@@ -29,10 +29,17 @@ const COLUMNS = [
 
 export default class TriageDashboard extends LightningElement {
     @track triageList = [];
-    @track selectedAssessment;
     @track error;
+    @track selectedAssessment;
+    @track sortBy = 'criticalAlert';
 
     columns = COLUMNS;
+
+    sortOptions = [
+        { label: 'Critical Alert', value: 'criticalAlert' },
+        { label: 'Wait Time', value: 'timeInQueue' },
+        { label: 'ESI Level', value: 'esiLevel' }
+    ];
 
     @wire(getAllTriageAssessments)
     wiredAssessments({ data, error }) {
@@ -40,8 +47,11 @@ export default class TriageDashboard extends LightningElement {
             this.triageList = data.map(record => ({
                 ...record,
                 esiLevelClass: this.getEsiLevelClass(record.esiLevel),
-                alertDisplay: record.criticalAlert ? '⚠️ ' + (record.alertDetails || 'Critical') : 'None'
+                alertDisplay: record.criticalAlert ? '⚠️ ' + (record.alertDetails || 'Critical') : 'None',
+                suggestedTriageLevel: this.getSuggestedTriageLevel(record), // Suggested triage
             }));
+
+            this.sortTriageList(); // Initial sort
             this.error = undefined;
         } else if (error) {
             this.error = error;
@@ -53,10 +63,23 @@ export default class TriageDashboard extends LightningElement {
         switch(esiLevel) {
             case '1': return 'slds-text-color_error'; // Red
             case '2': return 'slds-text-color_warning'; // Orange
-            case '3': return 'slds-text-color_weak'; // Yellowish
+            case '3': return 'slds-text-color_weak'; // Yellow
             case '4': return 'slds-text-color_success'; // Green
             case '5': return 'slds-text-color_success'; // Green
             default: return '';
+        }
+    }
+
+    getSuggestedTriageLevel(record) {
+        // Simplified clinical decision logic
+        if (record.criticalAlert) {
+            return 'ESI 1 (Immediate)';
+        } else if (record.vitalSignsAbnormal) {
+            return 'ESI 2 (Emergent)';
+        } else if (record.timeInQueue > 60) {
+            return 'ESI 2 (Emergent)';
+        } else {
+            return 'ESI 3-5 (Stable)';
         }
     }
 
@@ -70,5 +93,25 @@ export default class TriageDashboard extends LightningElement {
 
     closeModal() {
         this.selectedAssessment = null;
+    }
+
+    handleSortChange(event) {
+        this.sortBy = event.detail.value;
+        this.sortTriageList();
+    }
+
+    sortTriageList() {
+        if (!this.triageList) return;
+
+        this.triageList = [...this.triageList].sort((a, b) => {
+            if (this.sortBy === 'criticalAlert') {
+                return (b.criticalAlert === true ? 1 : 0) - (a.criticalAlert === true ? 1 : 0);
+            } else if (this.sortBy === 'timeInQueue') {
+                return b.timeInQueue - a.timeInQueue;
+            } else if (this.sortBy === 'esiLevel') {
+                return a.esiLevel - b.esiLevel;
+            }
+            return 0;
+        });
     }
 }

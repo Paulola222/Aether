@@ -1,5 +1,14 @@
 <template>
     <lightning-card title="Triage Nurse Dashboard" icon-name="standard:queue">
+        <div class="dashboard-controls">
+            <lightning-combobox
+                label="Sort By"
+                value={sortBy}
+                options={sortOptions}
+                onchange={handleSortChange}
+            ></lightning-combobox>
+        </div>
+        
         <div class="dashboard-container">
             <template if:true={triageList}>
                 <lightning-datatable
@@ -25,7 +34,8 @@
                 </header>
                 <div class="slds-modal__content">
                     <p><strong>ESI Level:</strong> {selectedAssessment.esiLevel}</p>
-                    <p><strong>Rationale:</strong> {selectedAssessment.rationale}</p>
+                    <p><strong>Suggested Triage Level:</strong> {selectedAssessment.suggestedTriageLevel}</p>
+                    <p><strong>Clinical Rationale:</strong> {selectedAssessment.rationale}</p>
                     <p><strong>Vital Signs:</strong></p>
                     <ul>
                         <li>Blood Pressure: {selectedAssessment.bloodPressure}</li>
